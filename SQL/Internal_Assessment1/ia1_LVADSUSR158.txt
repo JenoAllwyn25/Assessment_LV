@@ -1,0 +1,52 @@
+1. select CustomerID,DataUsed from customerinteractions
+where month=("March") and year=("2024")
+group by CustomerID
+having avg(DataUsed)>DataUsed;
+
+2. 
+
+3.
+
+
+4. select ProductTypeID,sum(totalsalesamount) as total_sales,sum(unitssold) as total_units
+from quarterlysales
+group by ProductTypeID;
+
+select ProductTypeID,sum(totalsalesamount),sum(unitssold)
+from quarterlysales
+where ProductTypeID="1"
+group by ProductTypeID;
+
+5. select ProductTypeID,sum(totalsalesamount) as total
+from quarterlysales
+where Quarter="Q1" and Year="2024"
+group by ProductTypeID
+order by total desc limit 1;
+
+6. select ProductTypeID,avg(totalsalesamount) as average
+from quarterlysales
+where Quarter="Q2" and Year="2024" and ProductTypeID="1"
+group by ProductTypeID;
+
+7. select recordid,region,avg(consumptionkwh) as average,consumptionkwh
+from sectorenergyconsumption
+where month="March" and year="2024" and (energysource="Wind" or energysource="solar")
+group by recordid
+having consumptionkwh>avg(consumptionkwh);
+
+8. 
+
+9.
+
+10. select customername
+from insuranceactivities
+where feedbackscore>5 and investigation="No";
+
+11. select policyid,customername,sum(annualpremium) as total_premium_revenue
+from insuranceactivities
+where feedbackscore>5 and investigation="No" and claimscount>0
+group by policyid;
+
+12. select policyid,customername,policytype,claimscount,avg(feedbackscore)as average
+from insuranceactivities
+group by policyid;
