@@ -1,0 +1,79 @@
+-- 1
+select machine_id from l1_maintenance_records
+where maintenance_date like "2024-03%"  and cost>(
+select avg(cost) from l1_maintenance_records);
+
+-- 2
+select maintenance_type,count(maintenance_type) as times_maintenace_performed from l1_maintenance_records
+where maintenance_date like "2024-03%" 
+group by maintenance_type;
+
+-- 3
+select technician_name,count(technician_name) as maintenace_tasks,round(avg(cost),2) as avgcost
+from l1_maintenance_records
+where maintenance_date like "2024-03%"
+group by technician_name
+order by avgcost desc;
+
+-- 4
+NA
+
+-- 5
+select update_id,user_feedback_score from l2_updates
+order by user_feedback_score desc limit 1;
+
+-- 6
+select product_id,incident_count_post_update, user_feedback_score from l2_updates
+order by incident_count_post_update desc limit 1;
+
+-- 7
+create view patient_info as
+select p.patient_name,f.facility_name,v.reason_for_visit,t.outcome 
+from l3_patients as p
+join l3_visits as v on v.patient_id=p.patient_id
+join l3_treatments as t on t.visit_id=v.visit_id
+join l3_facilities as f on f.facility_id=v.facility_id
+where visit_date like "2024-03%";
+
+-- 8
+select f.facility_name,count(f.facility_name) as emergencyCount
+from l3_visits as v
+join l3_facilities as f on f.facility_id=v.facility_id
+where visit_date like "2024-03%" and v.reason_for_visit="Emergency"
+group by f.facility_name;
+
+-- 9
+select p.insurance_provider,count(p.insurance_provider) as complicatedCount
+from l3_patients as p
+join l3_visits as v on v.patient_id=p.patient_id
+join l3_treatments as t on t.visit_id=v.visit_id
+join l3_facilities as f on f.facility_id=v.facility_id
+where visit_date like "2024-03%" and t.outcome="Complicated"
+group by p.insurance_provider; 
+
+-- 10
+select p.product_name,p.category,s.quantity
+from l4_products as p
+join l4_sales as s on p.product_id=s.product_id
+where product_name=(select p.product_name from l4_products as p
+join l4_sales as s on p.product_id=s.product_id
+where s.sale_date like "2024-03%"
+group by p.product_name
+order by max(s.quantity*p.price) desc limit 1); 
+
+-- 11
+create view total_sales as
+select st.region,sum(s.quantity*p.price) as sumvalue,s.sale_date as totalSales
+from l4_stores as st 
+join l4_sales as s on s.store_id=st.store_id
+join l4_products as p on p.product_id=s.product_id
+group by st.region;
+
+select st.region from total_sales
+where s.sale_date like "2024-03%"
+order by sumvalue desc limit 1;
+
+-- 12
+select * from l4_products as p
+full outer join l4_sales as s on p.product_id=s.product_id
+where quantity<> 1 and s.sale_date like "2024-03%"; 
