@@ -1,0 +1,108 @@
+-- 1
+select p.product_category,round(avg(s.sales_amount),2) as avg_last30days from products p
+join sales_records as s on s.product_id=p.product_id
+where s.sales_date<= date_sub(curdate(),interval 1 month)
+group by p.product_category;
+
+-- 2
+select p.product_name,sum(s.sales_amount) as total_amount from products p
+join sales_records as s on s.product_id=p.product_id
+group by p.product_name
+order by total_amount desc
+limit 3;
+
+-- 3
+select distinct(c.customer_id),cume_dist() over(order by s.sales_amount) as contribution
+from customers as c join sales_records as s on s.customer_id=c.customer_id
+order by contribution desc;
+
+-- 4 
+select customer_id,
+case when customer_id=(select customer_id from sales_records where sales_date<=date_sub(curdate(),interval 6 month)) then "Consistent Buyer"
+     else "Occasional Buyers"
+end as frequency
+from sales_records
+group by customer_id;
+
+-- 5
+select f.departure_airport,f.arrival_airport,round(avg(f.base_price),2) as avg_price from flights f
+group by f.departure_airport,f.arrival_airport;
+
+-- 6
+select f.flight_number,f.departure_date,count(t.ticket_id) as total_tickets_sold from flights f
+join tickets t on t.flight_id=f.flight_id
+group by f.flight_number,f.departure_date
+order by total_tickets_sold desc;
+
+-- 7
+select p.passenger_name,p.frequent_flyer_status,sum(t.ticket_price) as total_spent from passengers as p
+join tickets as t on t.passenger_id=p.passenger_id
+group by p.passenger_name,p.frequent_flyer_status
+order by total_spent desc limit 5;
+
+-- 8
+select month(ticket_date) as month,sum(ticket_price) as total_price,count(ticket_date) as tickets_sold from tickets
+group by month;
+
+-- 9
+select minute(ps.release_date,p.play_date) from playerscores p
+join games ps on ps.game_id=p.game_id;
+
+-- 10
+select g.game_name,count(ps.player_id) as number_of_players from games g
+join playerscores ps on ps.game_id=g.game_id
+group by g.game_name
+order by number_of_players desc limit 3;
+
+-- 11
+select g.game_name,round(avg(ps.score),0) as avg_score,max(ps.score) as max_score,count(ps.player_id) as number_of_players from games g
+join playerscores ps on ps.game_id=g.game_id
+group by g.game_name;
+
+-- 12
+select ps.player_id,p.registration_date,ps.play_date from playerscores ps
+join players p on p.player_id=ps.player_id
+where play_date>= date_sub(curdate(),interval 1 month);
+
+-- 13
+select d.doctor_id,d.doctor_name,round(sum(t.cost),0) as total_cost from doctors d
+join treatments t on t.doctor_id=d.doctor_id
+group by d.doctor_id,d.doctor_name
+order by total_cost desc limit 5;
+
+-- 14
+select t.treatment_name,(t.cost+p.bill_amount) as total_revenue,cume_dist() over(order by (t.cost+p.bill_amount)) as revenue_percent from patients p
+join treatments t on t.patient_id=p.patient_id
+order by total_revenue desc;
+
+-- 15
+NA
+
+-- 16
+select gender,diagnosis,floor(avg(discharge_date-admission_date)) as LOS from patients
+group by gender,diagnosis
+order by LOS desc;
+
+-- 17
+select department,semester, round(avg(grade) over(partition by department order by semester),2) as avg_grade from enrollments e
+join courses c on c.course_id=e.course_id
+;
+
+-- 18
+select s.major,s.enrollment_year,count(e.student_id) as student_count from students s
+join enrollments e on e.student_id=s.student_id
+group by s.major,s.enrollment_year;
+
+-- 19
+select s.student_id,s.student_name,e.semester,c.course_id,sum(credits) as total from students s
+join enrollments e on e.student_id=s.student_id
+join courses c on c.course_id=e.course_id
+group by s.student_id,s.student_name,e.semester,c.course_id
+having total>50;
+
+-- 20
+select c.course_name,s.enrollment_year,count(e.student_id) as enrollment_count from students s
+join enrollments e on e.student_id=s.student_id
+join courses c on c.course_id=e.course_id
+group by c.course_name,s.enrollment_year
+order by enrollment_count desc limit 3;
